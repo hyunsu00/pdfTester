@@ -11,7 +11,11 @@ compile_commands.json
 CTestTestfile.cmake
 _deps
 
-# Visual Studio 생성파일 무시
+# Visual Studio 생성폴더 무시
 .vs/
 out/
 build/
+
+# Visual Studio 생성파일 무시
+*.suo
+*.user
