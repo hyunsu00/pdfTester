@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
       <Configuration>Debug</Configuration>
@@ -18,18 +18,11 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="main.cpp" />
-    <ClCompile Include="PDFBoxConverter.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="PDFBoxConverter.h" />
-  </ItemGroup>
   <PropertyGroup Label="Globals">
-    <VCProjectVersion>15.0</VCProjectVersion>
-    <ProjectGuid>{B4E74817-0617-4AE7-9AD3-5E58F4CC4DEE}</ProjectGuid>
+    <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <RootNamespace>pdfboxTester</RootNamespace>
+    <ProjectGuid>{8387efc1-8c4c-49d7-b4de-4922b5f3c652}</ProjectGuid>
+    <RootNamespace>pdfiumTester</RootNamespace>
     <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -82,13 +75,13 @@
     <OutDir>$(SolutionDir)\Build\Windows\$(Platform)\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)\Build\Windows\$(Platform)\Obj\$(Configuration)\$(ProjectName)\</IntDir>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <LinkIncremental>true</LinkIncremental>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
     <OutDir>$(SolutionDir)\Build\Windows\$(Platform)\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)\Build\Windows\$(Platform)\Obj\$(Configuration)\$(ProjectName)\</IntDir>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <LinkIncremental>false</LinkIncremental>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <LinkIncremental>true</LinkIncremental>
     <OutDir>$(SolutionDir)\Build\Windows\$(Platform)\$(Configuration)\</OutDir>
     <IntDir>$(SolutionDir)\Build\Windows\$(Platform)\Obj\$(Configuration)\$(ProjectName)\</IntDir>
   </PropertyGroup>
@@ -99,71 +92,35 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
-      <PrecompiledHeader>
-      </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
-      <Optimization>Disabled</Optimization>
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>../Extern/;../Extern/Java/x86/include/;../Extern/Java/x86/include/Win32/;../common/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalOptions>/std:c++17 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalIncludeDirectories>../Extern/;../Extern/pdfium/include/;../common/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4566;4101;4267;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>../Extern/java/x86/lib/;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>jvm.lib;Shlwapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <DelayLoadDLLs>jvm.dll;%(DelayLoadDLLs)</DelayLoadDLLs>
+      <AdditionalLibraryDirectories>../Extern/pdfium/x86/lib/;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>pdfium.dll.lib;gdiplus.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <DelayLoadDLLs>pdfium.dll;gdiplus.dll;%(DelayLoadDLLs)</DelayLoadDLLs>
     </Link>
     <PostBuildEvent>
-      <Command>$(ProjectDir)../Extern/7-zip/7z x "$(ProjectDir)../Extern/java/x86/jre.zip" -o"$(OutDir)" -y
-xcopy "../Extern/pdfbox/PDFBoxModule.jar" "$(OutDir)" /d /h /y /f
-xcopy "../samples/*.*" "$(OutDir)samples/" /e /d /h /y /f
-IF NOT EXIST $(OutDir)result. (mkdir $(OutDir)result)</Command>
-    </PostBuildEvent>
-  </ItemDefinitionGroup>
-  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <ClCompile>
-      <PrecompiledHeader>
-      </PrecompiledHeader>
-      <WarningLevel>Level3</WarningLevel>
-      <Optimization>Disabled</Optimization>
-      <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>../Extern/;../Extern/Java/x64/include/;../Extern/Java/x64/include/Win32/;../common/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalOptions>/std:c++17 %(AdditionalOptions)</AdditionalOptions>
-      <DisableSpecificWarnings>4566;4101;4267;%(DisableSpecificWarnings)</DisableSpecificWarnings>
-    </ClCompile>
-    <Link>
-      <SubSystem>Console</SubSystem>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>jvm.lib;Shlwapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <DelayLoadDLLs>jvm.dll;%(DelayLoadDLLs)</DelayLoadDLLs>
-      <AdditionalLibraryDirectories>../Extern/java/x64/lib/;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-    </Link>
-    <PostBuildEvent>
-      <Command>$(ProjectDir)../Extern/7-zip/7z x "$(ProjectDir)../Extern/java/x64/jre.zip" -o"$(OutDir)" -y
-xcopy "../Extern/pdfbox/PDFBoxModule.jar" "$(OutDir)" /d /h /y /f
+      <Command>xcopy "../Extern/pdfium/x86/bin/pdfium.dll" "$(OutDir)" /d /h /y /f
 xcopy "../samples/*.*" "$(OutDir)samples/" /e /d /h /y /f
 IF NOT EXIST $(OutDir)result. (mkdir $(OutDir)result)</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
-      <PrecompiledHeader>
-      </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
-      <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>../Extern/;../Extern/Java/x86/include/;../Extern/Java/x86/include/Win32/;../common/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalOptions>/std:c++17 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalIncludeDirectories>../Extern/;../Extern/pdfium/include/;../common/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4566;4101;4267;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
     <Link>
@@ -171,30 +128,47 @@ IF NOT EXIST $(OutDir)result. (mkdir $(OutDir)result)</Command>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>../Extern/java/x86/lib/;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>jvm.lib;Shlwapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <DelayLoadDLLs>jvm.dll;%(DelayLoadDLLs)</DelayLoadDLLs>
+      <AdditionalLibraryDirectories>../Extern/pdfium/x86/lib/;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>pdfium.dll.lib;gdiplus.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <DelayLoadDLLs>pdfium.dll;gdiplus.dll;%(DelayLoadDLLs)</DelayLoadDLLs>
     </Link>
     <PostBuildEvent>
-      <Command>$(ProjectDir)../Extern/7-zip/7z x "$(ProjectDir)../Extern/java/x86/jre.zip" -o"$(OutDir)" -y
-xcopy "../Extern/pdfbox/PDFBoxModule.jar" "$(OutDir)" /d /h /y /f
+      <Command>xcopy "../Extern/pdfium/x86/bin/pdfium.dll" "$(OutDir)" /d /h /y /f
+xcopy "../samples/*.*" "$(OutDir)samples/" /e /d /h /y /f
+IF NOT EXIST $(OutDir)result. (mkdir $(OutDir)result)</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_DEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <AdditionalIncludeDirectories>../Extern/;../Extern/pdfium/include/;../common/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <DisableSpecificWarnings>4566;4101;4267;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalLibraryDirectories>../Extern/pdfium/x64/lib/;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>pdfium.dll.lib;gdiplus.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <DelayLoadDLLs>pdfium.dll;gdiplus.dll;%(DelayLoadDLLs)</DelayLoadDLLs>
+    </Link>
+    <PostBuildEvent>
+      <Command>xcopy "../Extern/pdfium/x64/bin/pdfium.dll" "$(OutDir)" /d /h /y /f
 xcopy "../samples/*.*" "$(OutDir)samples/" /e /d /h /y /f
 IF NOT EXIST $(OutDir)result. (mkdir $(OutDir)result)</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <PrecompiledHeader>
-      </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
-      <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>../Extern/;../Extern/Java/x64/include/;../Extern/Java/x64/include/Win32/;../common/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <AdditionalOptions>/std:c++17 %(AdditionalOptions)</AdditionalOptions>
+      <AdditionalIncludeDirectories>../Extern/;../Extern/pdfium/include/;../common/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4566;4101;4267;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
     <Link>
@@ -202,17 +176,28 @@ IF NOT EXIST $(OutDir)result. (mkdir $(OutDir)result)</Command>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>jvm.lib;Shlwapi.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <DelayLoadDLLs>jvm.dll;%(DelayLoadDLLs)</DelayLoadDLLs>
-      <AdditionalLibraryDirectories>../Extern/java/x64/lib/;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>../Extern/pdfium/x64/lib/;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>pdfium.dll.lib;gdiplus.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <DelayLoadDLLs>pdfium.dll;gdiplus.dll;%(DelayLoadDLLs)</DelayLoadDLLs>
     </Link>
     <PostBuildEvent>
-      <Command>$(ProjectDir)../Extern/7-zip/7z x "$(ProjectDir)../Extern/java/x64/jre.zip" -o"$(OutDir)" -y
-xcopy "../Extern/pdfbox/PDFBoxModule.jar" "$(OutDir)" /d /h /y /f
+      <Command>xcopy "../Extern/pdfium/x64/bin/pdfium.dll" "$(OutDir)" /d /h /y /f
 xcopy "../samples/*.*" "$(OutDir)samples/" /e /d /h /y /f
 IF NOT EXIST $(OutDir)result. (mkdir $(OutDir)result)</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClInclude Include="fpdf_converter.h" />
+    <ClInclude Include="fpdf_raii.h" />
+    <ClInclude Include="PDFiumConverter.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="PDFiumConverter.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="write_gdiplus.inl" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
