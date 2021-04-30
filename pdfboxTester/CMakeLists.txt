@@ -10,14 +10,6 @@ message(STATUS "\${PROJECT_NAME} = ${PROJECT_NAME}")
 set (CMAKE_VERBOSE_MAKEFILE true)
 
 ###
-# 패키지 찾기 - PDFiumConfig.cmake 파일 인클루드
-find_package(JNI REQUIRED)
-include_directories(${JAVA_INCLUDE_PATH} ${JAVA_INCLUDE_PATH2})
-message(STATUS "\${JAVA_INCLUDE_PATH} = ${JAVA_INCLUDE_PATH}")
-message(STATUS "\${JAVA_INCLUDE_PATH2} = ${JAVA_INCLUDE_PATH2}")
-message(STATUS "\${CMAKE_CURRENT_LIST_DIR} = ${CMAKE_CURRENT_LIST_DIR}")
-
-###
 #
 set (EXTERN_DIR ${CMAKE_SOURCE_DIR}/../Extern)
 message(STATUS "\${EXTERN_DIR} = ${EXTERN_DIR}")
@@ -27,6 +19,30 @@ set (COMMON_DIR ${CMAKE_SOURCE_DIR}/../common)
 message(STATUS "\${COMMON_DIR} = ${COMMON_DIR}")
 include_directories(${COMMON_DIR})
 
+if (CMAKE_SIZEOF_VOID_P EQUAL 8)
+	set(TARGET_PLATFORM "x64")
+elseif (CMAKE_SIZEOF_VOID_P EQUAL 4)
+	set(TARGET_PLATFORM "x86")
+endif()
+message(STATUS "\${TARGET_PLATFORM} = ${TARGET_PLATFORM}")
+
+###
+# 
+if (${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
+	set(JAVA_INCLUDE_PATH "${EXTERN_DIR}/java/${TARGET_PLATFORM}/include")
+	set(JAVA_INCLUDE_PATH2 "${EXTERN_DIR}/java/${TARGET_PLATFORM}/include/win32")
+	set(JNI_LIBRARIES "${EXTERN_DIR}/java/${TARGET_PLATFORM}/lib/jvm.lib")
+else ()
+	# 패키지 찾기 - JNIConfig.cmake 파일 인클루드
+	find_package(JNI REQUIRED)
+endif ()
+include_directories(${JAVA_INCLUDE_PATH} ${JAVA_INCLUDE_PATH2})
+message(STATUS "\${JAVA_INCLUDE_PATH} = ${JAVA_INCLUDE_PATH}")
+message(STATUS "\${JAVA_INCLUDE_PATH2} = ${JAVA_INCLUDE_PATH2}")
+message(STATUS "\${JNI_LIBRARIES} = ${JNI_LIBRARIES}")
+message(STATUS "\${CMAKE_CURRENT_LIST_DIR} = ${CMAKE_CURRENT_LIST_DIR}")
+
+###
 # 플랫폼 독립 코딩 위해 CRT 보안관련 경고 및 VC컴파일러 경고 비활성화
 if (MSVC)
 	# 파일 관련 함수 보안 경고 무시
@@ -70,6 +86,8 @@ add_executable (${PROJECT_NAME}
 target_link_libraries(${PROJECT_NAME} ${JNI_LIBRARIES})
 message(STATUS "\${JNI_LIBRARIES} = ${JNI_LIBRARIES}")
 if (${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
+	target_link_libraries(${PROJECT_NAME} "delayimp.lib")
+	target_link_options(${PROJECT_NAME} PRIVATE "/DELAYLOAD:jvm.dll")
 	target_link_libraries(${PROJECT_NAME} "Shlwapi.lib")
 endif()
 
@@ -95,6 +113,20 @@ add_custom_command(
 	COMMAND ${CMAKE_COMMAND} -E make_directory "$<TARGET_FILE_DIR:${PROJECT_NAME}>/result/"
 )
 message(STATUS "\${CMAKE_COMMAND} = ${CMAKE_COMMAND}")
+
+# 윈도우에서는 출력 폴더에 JRE 압축을 푼다.
+if (${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
+	set(7Z_COMMAND "${EXTERN_DIR}/7-zip/7z")
+	message(STATUS "\${7Z_COMMAND} = ${7Z_COMMAND}")
+	set(JRE_FILE_PATH "${EXTERN_DIR}/java/${TARGET_PLATFORM}/jre.zip")
+	message(STATUS "\${JRE_FILE_PATH} = ${JRE_FILE_PATH}")
+
+	add_custom_command(
+		TARGET ${PROJECT_NAME} POST_BUILD
+		COMMENT "jre 압축을 해제합니다."
+		COMMAND ${7Z_COMMAND} x ${JRE_FILE_PATH} -o"${CMAKE_BINARY_DIR}" -y
+	)
+endif()
 
 install(TARGETS ${PROJECT_NAME} DESTINATION ${PROJECT_NAME})
 install(FILES "${EXTERN_DIR}/pdfbox/PDFBoxModule.jar" DESTINATION ${PROJECT_NAME})
