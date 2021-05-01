@@ -94,12 +94,11 @@ namespace PDF { namespace Converter {
 
 		{
 			if (m_Flag.test(FlagPPL)) {
-
 				struct FPDFPageItem
 				{
-					FPDFPageItem(FPDF_PAGE page, int index)
-					: m_Page(page)
-					, m_Index(index)
+					FPDFPageItem(int index, FPDF_PAGE page)
+					: m_Index(index)
+					, m_Page(page)
 					{
 					}
 
@@ -121,9 +120,10 @@ namespace PDF { namespace Converter {
 					}
 					// centos7의 기본 컴파일러 버전 4.8.5여서 std::vector::emplace_back이 없어
 					// 복사생성자가 불리므로 std::unique_ptr을 std::shared_ptr로 한커플 씌움
-					pageItemPtrVector.push_back(std::make_shared<FPDFPageItem>(fpdf_page, i));
+					pageItemPtrVector.push_back(std::make_shared<FPDFPageItem>(i, fpdf_page));
 				}
 				std::mutex mtx; // Pdfium이 쓰레드 세이프 하지 않아 최소한의 쓰레드 동기화를 한다.
+				bool ret = true;
 				concurrency::parallel_for_each(
 					pageItemPtrVector.begin(),
 					pageItemPtrVector.end(),
@@ -131,7 +131,8 @@ namespace PDF { namespace Converter {
 						// PNG파일 추출
 						{
 							std::string resultPath = _U2A(targetDir) + std::to_string(pageItemPtr->m_Index) + ".png";
-							fpdf::converter::WritePng(mtx, resultPath.c_str(), pageItemPtr->m_Page.get(), form.get(), static_cast<float>(dpi));
+							ret = fpdf::converter::WritePng(mtx, resultPath.c_str(), pageItemPtr->m_Page.get(), form.get(), static_cast<float>(dpi));
+							_ASSERTE(ret && "fpdf::converter::WritePng() Failed");
 						}
 					}
 				);
@@ -148,7 +149,11 @@ namespace PDF { namespace Converter {
 					{
 						std::mutex mtx;
 						std::string resultPath = _U2A(targetDir) + std::to_string(pageIndex) + ".png";
-						fpdf::converter::WritePng(mtx, resultPath.c_str(), page.get(), form.get(), static_cast<float>(dpi));
+						bool ret = fpdf::converter::WritePng(mtx, resultPath.c_str(), page.get(), form.get(), static_cast<float>(dpi));
+						_ASSERTE(ret && "fpdf::converter::WritePng() Failed");
+						if (!ret) {
+							continue;
+						}
 					}
 				}
 			}
@@ -195,32 +200,111 @@ namespace PDF { namespace Converter {
 			}
 			unsigned short bom = 0xFEFF;
 			fwrite(&bom, sizeof(bom), 1, fp);
-			for (int pageIndex = 0; pageIndex < FPDF_GetPageCount(document.get()); pageIndex++) {
-				FPDF_PAGE fpdf_page = ::FPDF_LoadPage(document.get(), pageIndex);
-				_ASSERTE(fpdf_page && "fpdf_page is not Null");
-				if (!fpdf_page) {
-					continue;
-				}
-				AutoFPDFPagePtr page(fpdf_page);
 
+			if (m_Flag.test(FlagPPL)) {
+				struct FPDFPageTextItem
 				{
-					FPDF_TEXTPAGE fpdf_textPage = ::FPDFText_LoadPage(page.get());
+					FPDFPageTextItem(int index, FPDF_PAGE page, FPDF_TEXTPAGE textPage)
+					: m_Index(index)
+					, m_TextPage(textPage)
+					, m_Page(page)
+					, m_Result()
+					{
+					}
+
+					int m_Index;
+					AutoFPDFPagePtr m_Page;
+					AutoFPDFTextPagePtr m_TextPage;
+					std::vector<unsigned short> m_Result;
+				}; // struct FPDFPageTextItem
+
+				// !!!!! Pdfium은 쓰레드 쎄이프 하지 않다.
+				// https://groups.google.com/g/pdfium/c/HeZSsM_KEUk
+				// 따라서 쓰레드 세이프 하진 않은 곳에 동기화 객체를 써주어야 한다.
+				// == typedef std::shared_ptr<FPDFPageTextItem> FPDFPageTextItemPtr;
+				using FPDFPageTextItemPtr = std::shared_ptr<FPDFPageTextItem>;
+				std::vector<FPDFPageTextItemPtr> pageTextItemPtrVector;
+				for (int i = 0; i < FPDF_GetPageCount(document.get()); i++) {
+					FPDF_PAGE fpdf_page = ::FPDF_LoadPage(document.get(), i);
+					_ASSERTE(fpdf_page && "fpdf_page is not Null");
+					if (!fpdf_page) {
+						continue;
+					}
+
+					FPDF_TEXTPAGE fpdf_textPage = ::FPDFText_LoadPage(fpdf_page);
 					_ASSERTE(fpdf_textPage && "fpdf_textPage is not Null");
 					if (!fpdf_textPage) {
 						continue;
 					}
-					AutoFPDFTextPagePtr textPage(fpdf_textPage);
+					// centos7의 기본 컴파일러 버전 4.8.5여서 std::vector::emplace_back이 없어
+					// 복사생성자가 불리므로 std::unique_ptr을 std::shared_ptr로 한커플 씌움
+					pageTextItemPtrVector.push_back(std::make_shared<FPDFPageTextItem>(i, fpdf_page, fpdf_textPage));
+				}
+
+				// 병렬로 페이지의 텍스트 데이터를 복사한다.
+				concurrency::parallel_for_each(
+					pageTextItemPtrVector.begin(),
+					pageTextItemPtrVector.end(),
+					[&](const FPDFPageTextItemPtr& pageTextItemPtr) {
+						// TXT 추출
+						{
+							FPDF_TEXTPAGE fpdf_textPage = pageTextItemPtr->m_TextPage.get();
+							_ASSERTE(fpdf_textPage && "fpdf_textPage is not Null");
+							if (!fpdf_textPage) {
+								return;
+							}
+							std::vector<unsigned short>& result = pageTextItemPtr->m_Result;
+
+							int countChars = ::FPDFText_CountChars(fpdf_textPage);
+							unsigned short CRLF[2] = { '\r', '\n' };
+							result.resize(countChars + _countof(CRLF));
+
+							::FPDFText_GetText(fpdf_textPage, 0, static_cast<int>(countChars), &result[0]);
+
+							memcpy(&result[countChars], CRLF, sizeof(CRLF));
+						}
+					}
+				);
+
+				// TXT 파일로 쓴다.
+				std::for_each(
+					pageTextItemPtrVector.begin(),
+					pageTextItemPtrVector.end(),
+					[&fp](const FPDFPageTextItemPtr& pageTextItemPtr) {
+						const std::vector<unsigned short>& result = pageTextItemPtr->m_Result;
+						fwrite(&result[0], result.size() * sizeof(unsigned short), 1, fp);
+					}
+				);
+			} else {
+				for (int pageIndex = 0; pageIndex < FPDF_GetPageCount(document.get()); pageIndex++) {
+					FPDF_PAGE fpdf_page = ::FPDF_LoadPage(document.get(), pageIndex);
+					_ASSERTE(fpdf_page && "fpdf_page is not Null");
+					if (!fpdf_page) {
+						continue;
+					}
+					AutoFPDFPagePtr page(fpdf_page);
 
 					{
-						int countChars = ::FPDFText_CountChars(textPage.get());
-						std::vector<unsigned short> result(countChars + 1, 0);
-						::FPDFText_GetText(textPage.get(), 0, static_cast<int>(result.size()), &result[0]);
-						fwrite(&result[0], countChars * sizeof(unsigned short), 1, fp);
-						unsigned short CRLF[2] = { '\r', '\n' };
-						fwrite(CRLF, sizeof(CRLF), 1, fp);
+						FPDF_TEXTPAGE fpdf_textPage = ::FPDFText_LoadPage(page.get());
+						_ASSERTE(fpdf_textPage && "fpdf_textPage is not Null");
+						if (!fpdf_textPage) {
+							continue;
+						}
+						AutoFPDFTextPagePtr textPage(fpdf_textPage);
+
+						// TXT파일 추출
+						{
+							int countChars = ::FPDFText_CountChars(textPage.get());
+							std::vector<unsigned short> result(countChars + 1, 0);
+							::FPDFText_GetText(textPage.get(), 0, static_cast<int>(result.size()), &result[0]);
+							fwrite(&result[0], countChars * sizeof(unsigned short), 1, fp);
+							unsigned short CRLF[2] = { '\r', '\n' };
+							fwrite(CRLF, sizeof(CRLF), 1, fp);
+						}
 					}
 				}
 			}
+			
 			fclose(fp);
 		}
 
