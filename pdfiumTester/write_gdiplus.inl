@@ -6,7 +6,7 @@
                       // FPDFBitmap_GetStride, FPDFBitmap_GetBuffer
 #include <fpdf_edit.h> // FPDFPage_HasTransparency
 #include <fpdf_formfill.h> // FPDF_FFLDraw
-#include <gdiplus.h>
+#include <gdiplus.h> // Gdiplus
 #include <atlbase.h> // ATL::CComPtr
 #include <atlconv.h> // ATL::CA2W
 #include <mutex> // std::mutex
@@ -22,22 +22,21 @@ namespace std {
 namespace gdiplus {
 
     auto _getEncoderClsid = [](const wchar_t* format, CLSID* pClsid) -> int {
-        using namespace ::Gdiplus;
-
+        
         UINT  num = 0;          // number of image encoders
         UINT  size = 0;         // size of the image encoder array in bytes
 
-        ImageCodecInfo* pImageCodecInfo = NULL;
+        Gdiplus::ImageCodecInfo* pImageCodecInfo = NULL;
 
-        GetImageEncodersSize(&num, &size);
+        Gdiplus::GetImageEncodersSize(&num, &size);
         if (size == 0)
             return -1;  // Failure
 
-        pImageCodecInfo = (ImageCodecInfo*)(malloc(size));
+        pImageCodecInfo = (Gdiplus::ImageCodecInfo*)(malloc(size));
         if (pImageCodecInfo == NULL)
             return -1;  // Failure
 
-        GetImageEncoders(num, size, pImageCodecInfo);
+        Gdiplus::GetImageEncoders(num, size, pImageCodecInfo);
 
         for (UINT j = 0; j < num; ++j) {
             if (wcscmp(pImageCodecInfo[j].MimeType, format) == 0) {
@@ -139,8 +138,6 @@ namespace gdiplus {
         void* buffer = FPDFBitmap_GetBuffer(bitmap.get());
 
         {
-            
-
             Gdiplus::Bitmap gBitmap(width, height, stride, PixelFormat32bppARGB, (BYTE*)buffer);
             CLSID pngClsid = {0, };
             int result = _getEncoderClsid(L"image/png", &pngClsid);

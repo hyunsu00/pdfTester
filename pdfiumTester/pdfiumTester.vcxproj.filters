@@ -4,6 +4,7 @@
     <ClInclude Include="fpdf_converter.h" />
     <ClInclude Include="fpdf_raii.h" />
     <ClInclude Include="PDFiumConverter.h" />
+    <ClInclude Include="BuildConfig.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp" />

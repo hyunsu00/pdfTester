@@ -1,4 +1,5 @@
 ﻿// PDFicumConverter.cpp
+#include "BuildConfig.h"
 #include "PDFiumConverter.h"
 #include <fpdfview.h> // FPDF_InitLibraryWithConfig, FPDF_DestroyLibrary, FPDF_InitLibraryWithConfig, FPDF_LoadDocument, FPDF_GetPageCount, FPDF_LoadPage
 #include <fpdf_text.h> // FPDFText_LoadPage, FPDFText_CountChars, FPDFText_GetText
@@ -7,7 +8,7 @@
 #include <string> // std::string
 #include "pdf_utils.h" // AutoMemoryPtr
 #include "fpdf_raii.h" // AutoFPDFDocumentPtr, AutoFPDFFormHandlePtr, AutoFPDFPagePtr, AutoFPDFTextPagePtr
-#include "fpdf_converter.h"
+#include "fpdf_converter.h" // fpdf::converter::WritePng
 
 #ifdef _WIN32
 #	include <gdiplus.h>

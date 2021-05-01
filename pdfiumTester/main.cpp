@@ -1,11 +1,12 @@
 ﻿// main.cpp
+#include "BuildConfig.h"
 #include <chrono> // std::chrono
 #include <iostream> // std::cout
 #include <string> // std::string, std::wstring
 #include <ctype.h> // tolower 
 #include "cmdline.h" // cmdline::parser
-#include "PDFiumConverter.h"
-#include "pdf_utils.h"
+#include "PDFiumConverter.h" // PDF::Converter::PDFium
+#include "pdf_utils.h" // pathFileExists, pathIsDirectory, pathAddSeparator
 
 int main(int argc, char* argv[])
 {

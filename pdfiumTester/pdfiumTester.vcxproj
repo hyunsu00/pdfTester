@@ -96,19 +96,20 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>../Extern/;../Extern/pdfium/include/;../common/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../Extern/;../Extern/pdfium/include/;../Extern/vld/include/;../common/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4566;4101;4267;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <SupportJustMyCode>false</SupportJustMyCode>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>../Extern/pdfium/x86/lib/;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>../Extern/pdfium/x86/lib/;../Extern/vld/x86/lib/;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>pdfium.dll.lib;gdiplus.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <DelayLoadDLLs>pdfium.dll;gdiplus.dll;%(DelayLoadDLLs)</DelayLoadDLLs>
     </Link>
     <PostBuildEvent>
       <Command>xcopy "../Extern/pdfium/x86/bin/pdfium.dll" "$(OutDir)" /d /h /y /f
+xcopy "../Extern/vld/x86/bin/*.*" "$(OutDir)" /e /d /h /y /f
 xcopy "../samples/*.*" "$(OutDir)samples/" /e /d /h /y /f
 IF NOT EXIST $(OutDir)result. (mkdir $(OutDir)result)</Command>
     </PostBuildEvent>
@@ -121,7 +122,7 @@ IF NOT EXIST $(OutDir)result. (mkdir $(OutDir)result)</Command>
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>../Extern/;../Extern/pdfium/include/;../common/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../Extern/;../Extern/pdfium/include/;../Extern/vld/include/;../common/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4566;4101;4267;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
     <Link>
@@ -129,12 +130,13 @@ IF NOT EXIST $(OutDir)result. (mkdir $(OutDir)result)</Command>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>../Extern/pdfium/x86/lib/;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>../Extern/pdfium/x86/lib/;../Extern/vld/x86/lib/;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>pdfium.dll.lib;gdiplus.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <DelayLoadDLLs>pdfium.dll;gdiplus.dll;%(DelayLoadDLLs)</DelayLoadDLLs>
     </Link>
     <PostBuildEvent>
       <Command>xcopy "../Extern/pdfium/x86/bin/pdfium.dll" "$(OutDir)" /d /h /y /f
+xcopy "../Extern/vld/x86/bin/*.*" "$(OutDir)" /e /d /h /y /f
 xcopy "../samples/*.*" "$(OutDir)samples/" /e /d /h /y /f
 IF NOT EXIST $(OutDir)result. (mkdir $(OutDir)result)</Command>
     </PostBuildEvent>
@@ -145,19 +147,20 @@ IF NOT EXIST $(OutDir)result. (mkdir $(OutDir)result)</Command>
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>../Extern/;../Extern/pdfium/include/;../common/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../Extern/;../Extern/pdfium/include/;../Extern/vld/include/;../common/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4566;4101;4267;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <SupportJustMyCode>false</SupportJustMyCode>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>../Extern/pdfium/x64/lib/;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>../Extern/pdfium/x64/lib/;../Extern/vld/x64/lib/;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>pdfium.dll.lib;gdiplus.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <DelayLoadDLLs>pdfium.dll;gdiplus.dll;%(DelayLoadDLLs)</DelayLoadDLLs>
     </Link>
     <PostBuildEvent>
       <Command>xcopy "../Extern/pdfium/x64/bin/pdfium.dll" "$(OutDir)" /d /h /y /f
+xcopy "../Extern/vld/x64/bin/*.*" "$(OutDir)" /e /d /h /y /f
 xcopy "../samples/*.*" "$(OutDir)samples/" /e /d /h /y /f
 IF NOT EXIST $(OutDir)result. (mkdir $(OutDir)result)</Command>
     </PostBuildEvent>
@@ -170,7 +173,7 @@ IF NOT EXIST $(OutDir)result. (mkdir $(OutDir)result)</Command>
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>../Extern/;../Extern/pdfium/include/;../common/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>../Extern/;../Extern/pdfium/include/;../Extern/vld/include/;../common/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4566;4101;4267;%(DisableSpecificWarnings)</DisableSpecificWarnings>
     </ClCompile>
     <Link>
@@ -178,17 +181,19 @@ IF NOT EXIST $(OutDir)result. (mkdir $(OutDir)result)</Command>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>../Extern/pdfium/x64/lib/;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>../Extern/pdfium/x64/lib/;../Extern/vld/x64/lib/;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>pdfium.dll.lib;gdiplus.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <DelayLoadDLLs>pdfium.dll;gdiplus.dll;%(DelayLoadDLLs)</DelayLoadDLLs>
     </Link>
     <PostBuildEvent>
       <Command>xcopy "../Extern/pdfium/x64/bin/pdfium.dll" "$(OutDir)" /d /h /y /f
+xcopy "../Extern/vld/x64/bin/*.*" "$(OutDir)" /e /d /h /y /f
 xcopy "../samples/*.*" "$(OutDir)samples/" /e /d /h /y /f
 IF NOT EXIST $(OutDir)result. (mkdir $(OutDir)result)</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="BuildConfig.h" />
     <ClInclude Include="fpdf_converter.h" />
     <ClInclude Include="fpdf_raii.h" />
     <ClInclude Include="PDFiumConverter.h" />

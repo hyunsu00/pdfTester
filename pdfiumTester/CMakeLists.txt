@@ -51,6 +51,13 @@ set (COMMON_DIR ${CMAKE_SOURCE_DIR}/../common)
 message(STATUS "\${COMMON_DIR} = ${COMMON_DIR}")
 include_directories(${COMMON_DIR})
 
+if (CMAKE_SIZEOF_VOID_P EQUAL 8)
+	set(TARGET_PLATFORM "x64")
+elseif (CMAKE_SIZEOF_VOID_P EQUAL 4)
+	set(TARGET_PLATFORM "x86")
+endif()
+message(STATUS "\${TARGET_PLATFORM} = ${TARGET_PLATFORM}")
+
 # 플랫폼 독립 코딩 위해 CRT 보안관련 경고 및 VC컴파일러 경고 비활성화
 if (MSVC)
 	# 파일 관련 함수 보안 경고 무시
@@ -133,6 +140,17 @@ add_custom_command(
 )
 message(STATUS "\${CMAKE_COMMAND} = ${CMAKE_COMMAND}")
 
+# 윈도우에서는 메모리닉 체크 DLL을 복사한다.
+if (${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
+	set(VLD_DIR "${EXTERN_DIR}/vld/${TARGET_PLATFORM}/bin")
+	message(STATUS "\${VLD_DIR} = ${VLD_DIR}")
+
+	add_custom_command(
+		TARGET ${PROJECT_NAME} POST_BUILD
+		COMMENT "vld파일을 복사 합니다."
+		COMMAND xcopy "\"${VLD_DIR}/*.*"\" "\"${CMAKE_BINARY_DIR}"\" /e /d /h /y /f
+	)
+endif()
 
 install(TARGETS ${PROJECT_NAME} DESTINATION ${PROJECT_NAME})
 install(FILES ${PDFium_LIBRARY} DESTINATION ${PROJECT_NAME})
