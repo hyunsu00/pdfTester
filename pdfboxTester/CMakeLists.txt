@@ -1,4 +1,4 @@
-# CMakeList.txt
+﻿# CMakeList.txt
 cmake_minimum_required (VERSION 2.8)
 
 #
@@ -125,12 +125,20 @@ if (${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
 	add_custom_command(
 		TARGET ${PROJECT_NAME} POST_BUILD
 		COMMENT "jre 압축을 해제합니다."
-		COMMAND ${7Z_COMMAND} x ${JRE_FILE_PATH} -o"${CMAKE_BINARY_DIR}" -y
+		COMMAND ${7Z_COMMAND} x ${JRE_FILE_PATH} -o"${CMAKE_CURRENT_BINARY_DIR}" -y
 	)
 endif()
+message(STATUS "\${CMAKE_CURRENT_BINARY_DIR} = ${CMAKE_CURRENT_BINARY_DIR}")
 
+###
+# 인스톨
 install(TARGETS ${PROJECT_NAME} DESTINATION ${PROJECT_NAME})
 install(FILES "${EXTERN_DIR}/pdfbox/PDFBoxModule.jar" DESTINATION ${PROJECT_NAME})
+install(DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/samples" DESTINATION ${PROJECT_NAME})
+install(DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/result" DESTINATION ${PROJECT_NAME})
+if (${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
+	install(DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/jre" DESTINATION ${PROJECT_NAME})
+endif()
 
 ###
 # cpack

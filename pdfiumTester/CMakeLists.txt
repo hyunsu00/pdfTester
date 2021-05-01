@@ -1,4 +1,4 @@
-# CMakeList.txt
+﻿# CMakeList.txt
 cmake_minimum_required (VERSION 2.8)
 
 #
@@ -151,9 +151,14 @@ if (${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
 		COMMAND ${CMAKE_COMMAND} -E copy_directory "${VLD_DIR}" "$<TARGET_FILE_DIR:${PROJECT_NAME}>"
 	)
 endif()
+message(STATUS "\${CMAKE_CURRENT_BINARY_DIR} = ${CMAKE_CURRENT_BINARY_DIR}")
 
+###
+# 인스톨
 install(TARGETS ${PROJECT_NAME} DESTINATION ${PROJECT_NAME})
 install(FILES ${PDFium_LIBRARY} DESTINATION ${PROJECT_NAME})
+install(DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/samples" DESTINATION ${PROJECT_NAME})
+install(DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/result" DESTINATION ${PROJECT_NAME})
 
 ###
 # cpack

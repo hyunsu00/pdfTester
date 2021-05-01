@@ -19,3 +19,7 @@ build/
 # Visual Studio 생성파일 무시
 *.suo
 *.user
+CMakeSettings.json
+
+# Visual Studio Code 무시
+.vscode/
