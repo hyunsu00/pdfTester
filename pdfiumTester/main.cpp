@@ -31,7 +31,9 @@ int main(int argc, char* argv[])
     std::string source = parser.get<std::string>("source");
     std::string result = parser.get<std::string>("result");
     std::string type = parser.get<std::string>("type");
-   
+    bool memory = parser.exist("memory");
+    bool ppl = parser.exist("ppl");
+
     {
         // type 문자열 소문자로 변경
         std::transform(type.begin(), type.end(), type.begin(), ::tolower);
@@ -62,8 +64,13 @@ int main(int argc, char* argv[])
 
         // PDF -> PNG, PDF -> TXT 변환
         {
-            PDF::Converter::PDFium pdfConverter;
+            using namespace PDF::Converter;
 
+            PDFium::Flag flag;
+            if (memory) flag.set(PDFium::FlagMemory);
+            if (ppl) flag.set(PDFium::FlagPPL);
+
+            PDFium pdfConverter(flag);
             std::cout << "[Begin] : PDFium pdf to " << type << std::endl;
             std::chrono::steady_clock::time_point begin = std::chrono::steady_clock::now();
             {

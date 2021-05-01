@@ -98,6 +98,7 @@
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>../Extern/;../Extern/pdfium/include/;../common/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4566;4101;4267;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <SupportJustMyCode>false</SupportJustMyCode>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -146,6 +147,7 @@ IF NOT EXIST $(OutDir)result. (mkdir $(OutDir)result)</Command>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>../Extern/;../Extern/pdfium/include/;../common/;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4566;4101;4267;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <SupportJustMyCode>false</SupportJustMyCode>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>

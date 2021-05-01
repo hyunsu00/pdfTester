@@ -52,4 +52,5 @@ namespace {
 		}
 	}; // struct FPDFBitmapDeleter
 	using AutoFPDFBitmapPtr = std::unique_ptr<std::remove_pointer<FPDF_BITMAP>::type, FPDFBitmapDeleter>;
+
 }

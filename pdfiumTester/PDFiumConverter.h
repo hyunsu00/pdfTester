@@ -7,13 +7,18 @@ namespace PDF { namespace Converter {
 	class PDFium
 	{
 	public:
-		enum Flag {
-			FlagMemory = 0,
+		enum {
+			FlagBegin = 0,
+
+			FlagMemory = FlagBegin,
 			FlagPPL,
+
+			FlagEnd,
 		}; // enum Flag 
+		using Flag = std::bitset<FlagEnd>;
 
 	public:
-		PDFium();
+		PDFium(const Flag& flag);
 		~PDFium();
 
 	public:
@@ -25,7 +30,7 @@ namespace PDF { namespace Converter {
 		bool ToText(const wchar_t* sourceFile, const wchar_t* targetDir);
 
 	private:
-		std::bitset<2> m_Flag;
+		Flag m_Flag;
 	}; // class PDFBox
 
 }} // PDF::Converter

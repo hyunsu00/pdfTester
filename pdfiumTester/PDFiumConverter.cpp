@@ -27,8 +27,8 @@ namespace PDF { namespace Converter {
 	static ULONG_PTR s_GdiplusToken = 0;
 #endif
 
-	PDFium::PDFium()
-	: m_Flag()
+	PDFium::PDFium(const Flag& flag)
+	: m_Flag(flag)
 	{
 	}
 
@@ -93,28 +93,40 @@ namespace PDF { namespace Converter {
 
 		{
 			if (m_Flag.test(FlagPPL)) {
-				_ASSERTE(!"PPL은 현재 디거깅이 필요함 - 실패를 반환한다.");
 
-				// !!!!! Pdfium은 쓰레드 쎄이프 하지 않다. --> 실망
-            	// https://groups.google.com/g/pdfium/c/HeZSsM_KEUk
-				std::vector<size_t> vIndex(FPDF_GetPageCount(document.get()));
-				for (size_t i = 0; i < vIndex.size(); i++) vIndex[i] = i;
+				struct FPDFPageItem
+				{
+					FPDFPageItem(FPDF_PAGE page, int index)
+					: m_Page(page)
+					, m_Index(index)
+					{
+					}
 
+					AutoFPDFPagePtr m_Page;
+					int m_Index;
+				}; // struct FPDFPageItem
+
+				// !!!!! Pdfium은 쓰레드 쎄이프 하지 않다.
+				// https://groups.google.com/g/pdfium/c/HeZSsM_KEUk
+				// 따라서 쓰레드 세이프 하진 않은 곳에 동기화 객체를 써주어야 한다.
+				std::vector<FPDFPageItem> pageItemVector;
+				for (int i = 0; i < FPDF_GetPageCount(document.get()); i++) {
+					FPDF_PAGE fpdf_page = ::FPDF_LoadPage(document.get(), i);
+					_ASSERTE(fpdf_page && "fpdf_page is not Null");
+					if (!fpdf_page) {
+						continue;
+					}
+					pageItemVector.emplace_back(fpdf_page, i);
+				}
+				std::mutex mtx; // Pdfium이 쓰레드 세이프 하지 않아 최소한의 쓰레드 동기화를 한다.
 				concurrency::parallel_for_each(
-					vIndex.begin(),
-					vIndex.end(),
-					[&](size_t pageIndex) {
-						FPDF_PAGE fpdf_page = ::FPDF_LoadPage(document.get(), static_cast<int>(pageIndex));
-						_ASSERTE(fpdf_page && "fpdf_page is not Null");
-        				if (!fpdf_page) {
-            				return;
-        				}
-						AutoFPDFPagePtr page(fpdf_page);
-
+					pageItemVector.begin(),
+					pageItemVector.end(),
+					[&](const FPDFPageItem& pageItem) {
 						// PNG파일 추출
 						{
-							std::string resultPath = _U2A(targetDir) + std::to_string(pageIndex) + ".png";
-							fpdf::converter::WritePng(resultPath.c_str(), page.get(), form.get(), static_cast<float>(dpi));
+							std::string resultPath = _U2A(targetDir) + std::to_string(pageItem.m_Index) + ".png";
+							fpdf::converter::WritePng(mtx, resultPath.c_str(), pageItem.m_Page.get(), form.get(), static_cast<float>(dpi));
 						}
 					}
 				);
@@ -129,8 +141,9 @@ namespace PDF { namespace Converter {
 
 					// PNG파일 추출
 					{
+						std::mutex mtx;
 						std::string resultPath = _U2A(targetDir) + std::to_string(pageIndex) + ".png";
-						fpdf::converter::WritePng(resultPath.c_str(), page.get(), form.get(), static_cast<float>(dpi));
+						fpdf::converter::WritePng(mtx, resultPath.c_str(), page.get(), form.get(), static_cast<float>(dpi));
 					}
 				}
 			}

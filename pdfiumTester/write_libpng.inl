@@ -5,7 +5,8 @@
                         // FPDFBitmap_Create, FPDFBitmap_FillRect, FPDF_RenderPageBitmap, 
                         // FPDFBitmap_GetStride, FPDFBitmap_GetBuffer
 #include <fpdf_edit.h>  // FPDFPage_HasTransparency
-#include <fpdf_formfill.h> // FPDF_FFLDraw
+#include <fpdf_formfill.h>  // FPDF_FFLDraw
+#include <mutex>            // std::mutex
 #include "pdf_assert.h" // _ASSERTE
 #include "image_png.h"  // image::png::EncodeGrayPNG, image::png::EncodeBGRPNG, 
                         // image::png::EncodeBGRAPNG, image::png::EncodeBGRAPNG
@@ -58,7 +59,7 @@ namespace libpng {
         return png;
     }
 
-    inline bool WritePng(const char* pathName, FPDF_PAGE page, FPDF_FORMHANDLE form = nullptr, float dpi = 96.F)
+    inline bool WritePng(std::mutex& mtx, const char* pathName, FPDF_PAGE page, FPDF_FORMHANDLE form = nullptr, float dpi = 96.F)
     {
         _ASSERTE(pathName && "pathName is not Null");
         _ASSERTE(page && "page is not Null");
@@ -82,8 +83,13 @@ namespace libpng {
         FPDF_DWORD fill_color = alpha ? 0x00000000 : 0xFFFFFFFF;
         FPDFBitmap_FillRect(bitmap.get(), 0, 0, width, height, fill_color);
         int flags = 0;
-        FPDF_RenderPageBitmap(bitmap.get(), page, 0, 0, width, height, 0, flags);
-        FPDF_FFLDraw(form, bitmap.get(), page, 0, 0, width, height, 0, flags);
+
+        mtx.lock();
+        {
+            FPDF_RenderPageBitmap(bitmap.get(), page, 0, 0, width, height, 0, flags);
+            FPDF_FFLDraw(form, bitmap.get(), page, 0, 0, width, height, 0, flags); 
+        }
+        mtx.unlock();
 
         int stride = FPDFBitmap_GetStride(bitmap.get());
         void* buffer = FPDFBitmap_GetBuffer(bitmap.get());

@@ -7,13 +7,50 @@
 #include <fpdf_edit.h> // FPDFPage_HasTransparency
 #include <fpdf_formfill.h> // FPDF_FFLDraw
 #include <gdiplus.h>
-#include <atlbase.h>
-#include <atlconv.h>
+#include <atlbase.h> // ATL::CComPtr
+#include <atlconv.h> // ATL::CA2W
+#include <mutex> // std::mutex
 #include "fpdf_raii.h" // AutoFPDFBitmapPtr
+// #include <span> // std::span (C++20)
+#include "span.h"
+#include <stdint.h> // uint8_t
+namespace std {
+    template<typename T>
+    using span = typename tcb::span<T>;
+}
 
 namespace gdiplus {
 
-#if 0
+    auto _getEncoderClsid = [](const wchar_t* format, CLSID* pClsid) -> int {
+        using namespace ::Gdiplus;
+
+        UINT  num = 0;          // number of image encoders
+        UINT  size = 0;         // size of the image encoder array in bytes
+
+        ImageCodecInfo* pImageCodecInfo = NULL;
+
+        GetImageEncodersSize(&num, &size);
+        if (size == 0)
+            return -1;  // Failure
+
+        pImageCodecInfo = (ImageCodecInfo*)(malloc(size));
+        if (pImageCodecInfo == NULL)
+            return -1;  // Failure
+
+        GetImageEncoders(num, size, pImageCodecInfo);
+
+        for (UINT j = 0; j < num; ++j) {
+            if (wcscmp(pImageCodecInfo[j].MimeType, format) == 0) {
+                *pClsid = pImageCodecInfo[j].Clsid;
+                free(pImageCodecInfo);
+                return j;  // Success
+            }
+        }
+
+        free(pImageCodecInfo);
+        return -1;  // Failure
+    };
+
     inline std::vector<uint8_t> EncodePng(
         const std::span<const uint8_t>& input,
         int width,
@@ -21,46 +58,52 @@ namespace gdiplus {
         int stride,
         int format
     ) {
-        std::vector<uint8_t> output;
-
         CLSID pngClsid = { 0, };
         int result = _getEncoderClsid(L"image/png", &pngClsid);
         _ASSERTE(result != -1 && "_getEncoderClsid() Failed");
         if (result == -1) {
-            return output;
+            return std::vector<uint8_t>();
         }
 
-        Gdiplus::Bitmap bitmap(width, height, stride, format, (BYTE*)input.data());
+        Gdiplus::Bitmap gBitmap(width, height, stride, format, (BYTE*)input.data());
 
-        //write to IStream
-        IStream* istream = nullptr;
-        CreateStreamOnHGlobal(NULL, TRUE, &istream);
+        // write to IStream
+        ATL::CComPtr<IStream> spStreamPtr;
+        HRESULT hr = ::CreateStreamOnHGlobal(NULL, TRUE, &spStreamPtr);
+        _ASSERTE(SUCCEEDED(hr) && "CreateStreamOnHGlobal() Failed");
+        _ASSERTE(spStreamPtr && "spStreamPtr is not Null");
+        if (FAILED(hr) || !spStreamPtr) {
+            return std::vector<uint8_t>();
+        }
 
-        Gdiplus::Status status = bitmap.Save(istream, &pngClsid);
+        Gdiplus::Status status = gBitmap.Save(spStreamPtr, &pngClsid);
+        _ASSERTE(status == Gdiplus::Status::Ok && "gBitmap.Save() Failed");
         if (status != Gdiplus::Status::Ok) {
-            return output;
+            return std::vector<uint8_t>();
         }
 
-        //get memory handle associated with istream
-        HGLOBAL hGlobal = NULL;
-        ::GetHGlobalFromStream(istream, &hGlobal);
+        HGLOBAL hGlobal = nullptr;
+         hr = ::GetHGlobalFromStream(spStreamPtr, &hGlobal);
+        _ASSERTE(SUCCEEDED(hr) && "GetHGlobalFromStream() Failed");
+        _ASSERTE(hGlobal && "hGlobal is not Null");
+        if (FAILED(hr) || nullptr == hGlobal) {
+            return std::vector<uint8_t>();
+        }
 
-        //copy IStream to buffer
-        int bufsize = ::GlobalSize(hGlobal);
+        // copy IStream to buffer
+        std::vector<uint8_t> output;
+        SIZE_T bufsize = ::GlobalSize(hGlobal);
         output.resize(bufsize);
 
-        //lock & unlock memory
+        // lock & unlock memory
         LPVOID pImage = ::GlobalLock(hGlobal);
         ::memcpy(&output[0], pImage, bufsize);
         ::GlobalUnlock(hGlobal);
 
-        istream->Release();
-
         return output;
     }
-#endif
 
-    inline bool WritePng(const char* pathName, FPDF_PAGE page, FPDF_FORMHANDLE form = nullptr, float dpi = 96.F)
+    inline bool WritePng(std::mutex& mtx, const char* pathName, FPDF_PAGE page, FPDF_FORMHANDLE form = nullptr, float dpi = 96.F)
     {
         _ASSERTE(pathName && "pathName is not Null");
         _ASSERTE(page && "page is not Null");
@@ -84,42 +127,19 @@ namespace gdiplus {
         FPDF_DWORD fill_color = alpha ? 0x00000000 : 0xFFFFFFFF;
         FPDFBitmap_FillRect(bitmap.get(), 0, 0, width, height, fill_color);
         int flags = 0;
-        FPDF_RenderPageBitmap(bitmap.get(), page, 0, 0, width, height, 0, flags);
-        FPDF_FFLDraw(form, bitmap.get(), page, 0, 0, width, height, 0, flags);
+
+        mtx.lock();
+        {
+            FPDF_RenderPageBitmap(bitmap.get(), page, 0, 0, width, height, 0, flags);
+            FPDF_FFLDraw(form, bitmap.get(), page, 0, 0, width, height, 0, flags);
+        }
+        mtx.unlock();
 
         int stride = FPDFBitmap_GetStride(bitmap.get());
         void* buffer = FPDFBitmap_GetBuffer(bitmap.get());
 
         {
-            auto _getEncoderClsid = [](const wchar_t* format, CLSID* pClsid) -> int {
-                using namespace ::Gdiplus;
-
-                UINT  num = 0;          // number of image encoders
-                UINT  size = 0;         // size of the image encoder array in bytes
-
-                ImageCodecInfo* pImageCodecInfo = NULL;
-
-                GetImageEncodersSize(&num, &size);
-                if (size == 0)
-                    return -1;  // Failure
-
-                pImageCodecInfo = (ImageCodecInfo*)(malloc(size));
-                if (pImageCodecInfo == NULL)
-                    return -1;  // Failure
-
-                GetImageEncoders(num, size, pImageCodecInfo);
-
-                for (UINT j = 0; j < num; ++j) {
-                    if (wcscmp(pImageCodecInfo[j].MimeType, format) == 0) {
-                        *pClsid = pImageCodecInfo[j].Clsid;
-                        free(pImageCodecInfo);
-                        return j;  // Success
-                    }
-                }
-
-                free(pImageCodecInfo);
-                return -1;  // Failure
-            };
+            
 
             Gdiplus::Bitmap gBitmap(width, height, stride, PixelFormat32bppARGB, (BYTE*)buffer);
             CLSID pngClsid = {0, };
