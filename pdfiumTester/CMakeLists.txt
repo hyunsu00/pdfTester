@@ -148,7 +148,7 @@ if (${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
 	add_custom_command(
 		TARGET ${PROJECT_NAME} POST_BUILD
 		COMMENT "vld파일을 복사 합니다."
-		COMMAND xcopy "${VLD_DIR}/*.*" "${CMAKE_BINARY_DIR}" /e /d /h /y /f
+		COMMAND ${CMAKE_COMMAND} -E copy_directory "${VLD_DIR}" "$<TARGET_FILE_DIR:${PROJECT_NAME}>"
 	)
 endif()
 
