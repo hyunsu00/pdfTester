@@ -6,19 +6,22 @@
 #include <fpdf_formfill.h> // FPDFDOC_InitFormFillEnvironment
 #include <vector> // std::vector
 #include <string> // std::string
+#include <algorithm> // std::for_each
 #include "pdf_utils.h" // AutoMemoryPtr
 #include "fpdf_raii.h" // AutoFPDFDocumentPtr, AutoFPDFFormHandlePtr, AutoFPDFPagePtr, AutoFPDFTextPagePtr
 #include "fpdf_converter.h" // fpdf::converter::WritePng
 
 #ifdef _WIN32
 #	include <gdiplus.h>
-#   include <ppl.h>
+#   include <ppl.h> // concurrency::parallel_for_each, concurrency::critical_section
 #else
 #   include <string.h> // strdup
 #   include <libgen.h> // dirname, basename
-#   include <tbb/parallel_for_each.h> // parallel_for_each
+#   include <tbb/parallel_for_each.h> // tbb::parallel_for_each
+#	include <tbb/critical_section.h> // tbb::critical_section
 namespace concurrency {
 	using tbb::parallel_for_each;
+	using tbb::critical_section;
 }
 #endif
 
@@ -122,7 +125,8 @@ namespace PDF { namespace Converter {
 					// 복사생성자가 불리므로 std::unique_ptr을 std::shared_ptr로 한커플 씌움
 					pageItemPtrVector.push_back(std::make_shared<FPDFPageItem>(i, fpdf_page));
 				}
-				std::mutex mtx; // Pdfium이 쓰레드 세이프 하지 않아 최소한의 쓰레드 동기화를 한다.
+
+				concurrency::critical_section cs; // Pdfium이 쓰레드 세이프 하지 않아 최소한의 쓰레드 동기화를 한다.
 				bool ret = true;
 				concurrency::parallel_for_each(
 					pageItemPtrVector.begin(),
@@ -131,7 +135,7 @@ namespace PDF { namespace Converter {
 						// PNG파일 추출
 						{
 							std::string resultPath = _U2A(targetDir) + std::to_string(pageItemPtr->m_Index) + ".png";
-							ret = fpdf::converter::WritePng(mtx, resultPath.c_str(), pageItemPtr->m_Page.get(), form.get(), static_cast<float>(dpi));
+							ret = fpdf::converter::WritePng(cs, resultPath.c_str(), pageItemPtr->m_Page.get(), form.get(), static_cast<float>(dpi));
 							_ASSERTE(ret && "fpdf::converter::WritePng() Failed");
 						}
 					}
@@ -147,9 +151,9 @@ namespace PDF { namespace Converter {
 
 					// PNG파일 추출
 					{
-						std::mutex mtx;
+						concurrency::critical_section cs;
 						std::string resultPath = _U2A(targetDir) + std::to_string(pageIndex) + ".png";
-						bool ret = fpdf::converter::WritePng(mtx, resultPath.c_str(), page.get(), form.get(), static_cast<float>(dpi));
+						bool ret = fpdf::converter::WritePng(cs, resultPath.c_str(), page.get(), form.get(), static_cast<float>(dpi));
 						_ASSERTE(ret && "fpdf::converter::WritePng() Failed");
 						if (!ret) {
 							continue;
@@ -257,7 +261,7 @@ namespace PDF { namespace Converter {
 
 							int countChars = ::FPDFText_CountChars(fpdf_textPage);
 							unsigned short CRLF[2] = { '\r', '\n' };
-							result.resize(countChars + _countof(CRLF));
+							result.resize(countChars + (sizeof(CRLF) / sizeof(CRLF[0])));
 
 							::FPDFText_GetText(fpdf_textPage, 0, static_cast<int>(countChars), &result[0]);
 

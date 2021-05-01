@@ -6,11 +6,19 @@
                         // FPDFBitmap_GetStride, FPDFBitmap_GetBuffer
 #include <fpdf_edit.h>  // FPDFPage_HasTransparency
 #include <fpdf_formfill.h>  // FPDF_FFLDraw
-#include <mutex>            // std::mutex
 #include "pdf_assert.h" // _ASSERTE
 #include "image_png.h"  // image::png::EncodeGrayPNG, image::png::EncodeBGRPNG, 
                         // image::png::EncodeBGRAPNG, image::png::EncodeBGRAPNG
 #include "fpdf_raii.h"  // AutoFPDFBitmapPtr
+
+#ifdef _WIN32
+#   include <ppl.h> // concurrency::critical_section
+#else
+#	include <tbb/critical_section.h> // tbb::critical_section
+namespace concurrency {
+    using tbb::critical_section;
+}
+#endif
 
 namespace libpng {
 
@@ -59,7 +67,7 @@ namespace libpng {
         return png;
     }
 
-    inline bool WritePng(std::mutex& mtx, const char* pathName, FPDF_PAGE page, FPDF_FORMHANDLE form = nullptr, float dpi = 96.F)
+    inline bool WritePng(concurrency::critical_section& mtx, const char* pathName, FPDF_PAGE page, FPDF_FORMHANDLE form = nullptr, float dpi = 96.F)
     {
         _ASSERTE(pathName && "pathName is not Null");
         _ASSERTE(page && "page is not Null");

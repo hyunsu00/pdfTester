@@ -9,8 +9,8 @@
 #include <gdiplus.h> // Gdiplus
 #include <atlbase.h> // ATL::CComPtr
 #include <atlconv.h> // ATL::CA2W
-#include <mutex> // std::mutex
 #include "fpdf_raii.h" // AutoFPDFBitmapPtr
+
 // #include <span> // std::span (C++20)
 #include "span.h"
 #include <stdint.h> // uint8_t
@@ -18,6 +18,15 @@ namespace std {
     template<typename T>
     using span = typename tcb::span<T>;
 }
+
+#ifdef _WIN32
+#   include <ppl.h> // concurrency::critical_section
+#else
+#	include <tbb/critical_section.h> // tbb::critical_section
+namespace concurrency {
+    using tbb::critical_section;
+}
+#endif
 
 namespace gdiplus {
 
@@ -102,7 +111,7 @@ namespace gdiplus {
         return output;
     }
 
-    inline bool WritePng(std::mutex& mtx, const char* pathName, FPDF_PAGE page, FPDF_FORMHANDLE form = nullptr, float dpi = 96.F)
+    inline bool WritePng(concurrency::critical_section& cs, const char* pathName, FPDF_PAGE page, FPDF_FORMHANDLE form = nullptr, float dpi = 96.F)
     {
         _ASSERTE(pathName && "pathName is not Null");
         _ASSERTE(page && "page is not Null");
@@ -127,12 +136,12 @@ namespace gdiplus {
         FPDFBitmap_FillRect(bitmap.get(), 0, 0, width, height, fill_color);
         int flags = 0;
 
-        mtx.lock();
+        cs.lock();
         {
             FPDF_RenderPageBitmap(bitmap.get(), page, 0, 0, width, height, 0, flags);
             FPDF_FFLDraw(form, bitmap.get(), page, 0, 0, width, height, 0, flags);
         }
-        mtx.unlock();
+        cs.unlock();
 
         int stride = FPDFBitmap_GetStride(bitmap.get());
         void* buffer = FPDFBitmap_GetBuffer(bitmap.get());
