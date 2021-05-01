@@ -110,24 +110,28 @@ namespace PDF { namespace Converter {
 				// !!!!! Pdfium은 쓰레드 쎄이프 하지 않다.
 				// https://groups.google.com/g/pdfium/c/HeZSsM_KEUk
 				// 따라서 쓰레드 세이프 하진 않은 곳에 동기화 객체를 써주어야 한다.
-				std::vector<FPDFPageItem> pageItemVector;
+				// == typedef std::shared_ptr<FPDFPageItem> FPDFPageItemPtr;
+				using FPDFPageItemPtr = std::shared_ptr<FPDFPageItem>;
+				std::vector<FPDFPageItemPtr> pageItemPtrVector;
 				for (int i = 0; i < FPDF_GetPageCount(document.get()); i++) {
 					FPDF_PAGE fpdf_page = ::FPDF_LoadPage(document.get(), i);
 					_ASSERTE(fpdf_page && "fpdf_page is not Null");
 					if (!fpdf_page) {
 						continue;
 					}
-					pageItemVector.emplace_back(fpdf_page, i);
+					// centos7의 기본 컴파일러 버전 4.8.5여서 std::vector::emplace_back이 없어
+					// 복사생성자가 불리므로 std::unique_ptr을 std::shared_ptr로 한커플 씌움
+					pageItemPtrVector.push_back(std::make_shared<FPDFPageItem>(fpdf_page, i));
 				}
 				std::mutex mtx; // Pdfium이 쓰레드 세이프 하지 않아 최소한의 쓰레드 동기화를 한다.
 				concurrency::parallel_for_each(
-					pageItemVector.begin(),
-					pageItemVector.end(),
-					[&](const FPDFPageItem& pageItem) {
+					pageItemPtrVector.begin(),
+					pageItemPtrVector.end(),
+					[&](const FPDFPageItemPtr& pageItemPtr) {
 						// PNG파일 추출
 						{
-							std::string resultPath = _U2A(targetDir) + std::to_string(pageItem.m_Index) + ".png";
-							fpdf::converter::WritePng(mtx, resultPath.c_str(), pageItem.m_Page.get(), form.get(), static_cast<float>(dpi));
+							std::string resultPath = _U2A(targetDir) + std::to_string(pageItemPtr->m_Index) + ".png";
+							fpdf::converter::WritePng(mtx, resultPath.c_str(), pageItemPtr->m_Page.get(), form.get(), static_cast<float>(dpi));
 						}
 					}
 				);
