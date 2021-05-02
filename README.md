@@ -23,6 +23,9 @@ mkdir pdfiumTester/result
 ## pdfiumTester 종속 패키지 설치
 
 ```bash
+# 패키지 확인시
+ldd ./pdfiumTester
+
 # libpng 설치
 1. yum install libpng -y
 # intel tbb 설치
@@ -32,6 +35,9 @@ mkdir pdfiumTester/result
 ## pdfboxTester 종속 패키지 설치
 
 ```bash
+# 패키지 확인시
+ldd ./pdfboxTester
+
 # java jre 설치
 yum install java-1.8.0-openjdk -y
 
