@@ -1,12 +1,16 @@
 # pdfTester
 
-## centos7_pdfTester 도커 실행
+## pdfTester 도커 실행
+
+### centos7
 
 ```bash
 docker run -d --privileged -v ~/share_docker:/share_docker --name "centos7-pdfTester" centos:7 init
 ```
 
 ## pdfTestr 복사 및 압축풀기
+
+### centos7
 
 ```bash
 docker exec -it centos7-pdfTester bash
@@ -22,6 +26,8 @@ mkdir pdfiumTester/result
 
 ## pdfiumTester 종속 패키지 설치
 
+### centos7(yum)
+
 ```bash
 # 패키지 확인시
 ldd ./pdfiumTester
@@ -32,14 +38,28 @@ ldd ./pdfiumTester
 2. yum install tbb -y
 ```
 
+### ubuntu18.04(apt)
+
+```bash
+# 패키지 확인시
+ldd ./pdfiumTester
+
+# libpng 설치
+1. apt install libpng16-16 -y
+# intel tbb 설치
+2. apt install libtbb-dev -y
+```
+
 ## pdfboxTester 종속 패키지 설치
+
+### centos7(yum)
 
 ```bash
 # 패키지 확인시
 ldd ./pdfboxTester
 
 # java jre 설치
-yum install java-1.8.0-openjdk -y
+1. yum install java-1.8.0-openjdk -y
 
 vi /root/.bashrc
 # 맨 뒤에 추가
@@ -55,6 +75,34 @@ echo $JAVA_HOME
 echo $LD_LIBRARY_PATH
 # 결과 확인
 :/usr/lib/jvm/jre/lib/amd64:/usr/lib/jvm/jre/lib/amd64/server
+```
+
+### ubuntu18.04(apt)
+
+```bash
+# 패키지 확인시
+ldd ./pdfboxTester
+
+# vim 에디터 설치
+apt install vim -y
+
+# java jre 설치
+1. apt install openjdk-8-jre -y
+
+vi /root/.bashrc
+# 맨 뒤에 추가
+export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$JAVA_HOME/jre/lib/amd64:$JAVA_HOME/jre/lib/amd64/server
+
+source /root/.bashrc
+
+echo $JAVA_HOME
+# 결과확인
+/usr/lib/jvm/java-8-openjdk-amd64
+
+echo $LD_LIBRARY_PATH
+# 결과 확인
+:/usr/lib/jvm/java-8-openjdk-amd64/jre/lib/amd64:/usr/lib/jvm/java-8-openjdk-amd64/jre/lib/amd64/server
 ```
 
 # pdfiumTester CLI
