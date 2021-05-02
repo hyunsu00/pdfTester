@@ -55,45 +55,45 @@ echo $LD_LIBRARY_PATH
 
 ```bash
 # 기본
-./pdfiumTester -s ./samples/sample01.pdf -r ./result/ -t png
-./pdfiumTester -s ./samples/sample01.pdf -r ./result/ -t txt
-./pdfiumTester -s ./samples/sample02.pdf -r ./result/ -t png
-./pdfiumTester -s ./samples/sample02.pdf -r ./result/ -t txt
-./pdfiumTester -s ./samples/sample03.pdf -r ./result/ -t png
-./pdfiumTester -s ./samples/sample03.pdf -r ./result/ -t txt
+./pdfiumTester -s ./samples/sample01.pdf -r ./result/ -t png > ./pdfium.sample01.png.txt
+./pdfiumTester -s ./samples/sample01.pdf -r ./result/ -t txt > ./pdfium.sample01.txt.txt
+./pdfiumTester -s ./samples/sample02.pdf -r ./result/ -t png > ./pdfium.sample02.png.txt
+./pdfiumTester -s ./samples/sample02.pdf -r ./result/ -t txt > ./pdfium.sample02.txt.txt
+./pdfiumTester -s ./samples/sample03.pdf -r ./result/ -t png > ./pdfium.sample03.png.txt
+./pdfiumTester -s ./samples/sample03.pdf -r ./result/ -t txt > ./pdfium.sample03.txt.txt
 
 # ppl
-./pdfiumTester -s ./samples/sample01.pdf -r ./result/ -t png --ppl
-./pdfiumTester -s ./samples/sample01.pdf -r ./result/ -t txt --ppl
-./pdfiumTester -s ./samples/sample02.pdf -r ./result/ -t png --ppl
-./pdfiumTester -s ./samples/sample02.pdf -r ./result/ -t txt --ppl
-./pdfiumTester -s ./samples/sample03.pdf -r ./result/ -t png --ppl
-./pdfiumTester -s ./samples/sample03.pdf -r ./result/ -t txt --ppl
+./pdfiumTester -s ./samples/sample01.pdf -r ./result/ -t png --ppl > ./pdfium.sample01.png.ppl.txt
+./pdfiumTester -s ./samples/sample01.pdf -r ./result/ -t txt --ppl > ./pdfium.sample01.txt.ppl.txt
+./pdfiumTester -s ./samples/sample02.pdf -r ./result/ -t png --ppl > ./pdfium.sample02.png.ppl.txt
+./pdfiumTester -s ./samples/sample02.pdf -r ./result/ -t txt --ppl > ./pdfium.sample02.txt.ppl.txt
+./pdfiumTester -s ./samples/sample03.pdf -r ./result/ -t png --ppl > ./pdfium.sample03.png.ppl.txt
+./pdfiumTester -s ./samples/sample03.pdf -r ./result/ -t txt --ppl > ./pdfium.sample03.txt.ppl.txt
 
 # 메모리
-./pdfiumTester -s ./samples/sample01.pdf -r ./result/ -t png --memory
-./pdfiumTester -s ./samples/sample01.pdf -r ./result/ -t txt --memory
-./pdfiumTester -s ./samples/sample02.pdf -r ./result/ -t png --memory
-./pdfiumTester -s ./samples/sample02.pdf -r ./result/ -t txt --memory
-./pdfiumTester -s ./samples/sample03.pdf -r ./result/ -t png --memory
-./pdfiumTester -s ./samples/sample03.pdf -r ./result/ -t txt --memory
+./pdfiumTester -s ./samples/sample01.pdf -r ./result/ -t png --memory > ./pdfium.sample01.png.memory.txt
+./pdfiumTester -s ./samples/sample01.pdf -r ./result/ -t txt --memory > ./pdfium.sample01.txt.memory.txt
+./pdfiumTester -s ./samples/sample02.pdf -r ./result/ -t png --memory > ./pdfium.sample02.png.memory.txt
+./pdfiumTester -s ./samples/sample02.pdf -r ./result/ -t txt --memory > ./pdfium.sample02.txt.memory.txt
+./pdfiumTester -s ./samples/sample03.pdf -r ./result/ -t png --memory > ./pdfium.sample03.png.memory.txt
+./pdfiumTester -s ./samples/sample03.pdf -r ./result/ -t txt --memory > ./pdfium.sample03.txt.memory.txt
 
 # ppl, memory
-./pdfiumTester -s ./samples/sample01.pdf -r ./result/ -t png --ppl --memory
-./pdfiumTester -s ./samples/sample01.pdf -r ./result/ -t txt --ppl --memory
-./pdfiumTester -s ./samples/sample02.pdf -r ./result/ -t png --ppl --memory
-./pdfiumTester -s ./samples/sample02.pdf -r ./result/ -t txt --ppl --memory
-./pdfiumTester -s ./samples/sample03.pdf -r ./result/ -t png --ppl --memory
-./pdfiumTester -s ./samples/sample03.pdf -r ./result/ -t txt --ppl --memory
+./pdfiumTester -s ./samples/sample01.pdf -r ./result/ -t png --ppl --memory > ./pdfium.sample01.png.ppl.memory.txt
+./pdfiumTester -s ./samples/sample01.pdf -r ./result/ -t txt --ppl --memory > ./pdfium.sample01.txt.ppl.memory.txt
+./pdfiumTester -s ./samples/sample02.pdf -r ./result/ -t png --ppl --memory > ./pdfium.sample02.png.ppl.memory.txt
+./pdfiumTester -s ./samples/sample02.pdf -r ./result/ -t txt --ppl --memory > ./pdfium.sample02.txt.ppl.memory.txt
+./pdfiumTester -s ./samples/sample03.pdf -r ./result/ -t png --ppl --memory > ./pdfium.sample03.png.ppl.memory.txt
+./pdfiumTester -s ./samples/sample03.pdf -r ./result/ -t txt --ppl --memory > ./pdfium.sample03.txt.ppl.memory.txt
 ```
 
 # pdfboxTester CLI
 
 ```bash
-./pdfboxTester -s ./samples/sample01.pdf -r ./result/ -t png
-./pdfboxTester -s ./samples/sample01.pdf -r ./result/ -t txt
-./pdfboxTester -s ./samples/sample02.pdf -r ./result/ -t png
-./pdfboxTester -s ./samples/sample02.pdf -r ./result/ -t txt
-./pdfboxTester -s ./samples/sample03.pdf -r ./result/ -t png
-./pdfboxTester -s ./samples/sample03.pdf -r ./result/ -t txt
+./pdfboxTester -s ./samples/sample01.pdf -r ./result/ -t png > ./pdfbox.sample01.png.txt
+./pdfboxTester -s ./samples/sample01.pdf -r ./result/ -t txt > ./pdfbox.sample01.txt.txt
+./pdfboxTester -s ./samples/sample02.pdf -r ./result/ -t png > ./pdfbox.sample02.png.txt
+./pdfboxTester -s ./samples/sample02.pdf -r ./result/ -t txt > ./pdfbox.sample02.txt.txt
+./pdfboxTester -s ./samples/sample03.pdf -r ./result/ -t png > ./pdfbox.sample03.png.txt
+./pdfboxTester -s ./samples/sample03.pdf -r ./result/ -t txt > ./pdfbox.sample03.txt.txt
 ```
