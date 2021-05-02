@@ -20,9 +20,9 @@ namespace std {
 }
 
 #ifdef _WIN32
-#   include <ppl.h> // concurrency::critical_section
+#   include <ppl.h> // concurrency::critical_section, concurrency::critical_section::scoped_lock
 #else
-#	include <tbb/critical_section.h> // tbb::critical_section
+#	include <tbb/critical_section.h> // tbb::critical_section, tbb::critical_section::scoped_lock
 namespace concurrency {
     using tbb::critical_section;
 }
@@ -136,12 +136,11 @@ namespace gdiplus {
         FPDFBitmap_FillRect(bitmap.get(), 0, 0, width, height, fill_color);
         int flags = 0;
 
-        cs.lock();
         {
+            concurrency::critical_section::scoped_lock autoLock(cs);
             FPDF_RenderPageBitmap(bitmap.get(), page, 0, 0, width, height, 0, flags);
             FPDF_FFLDraw(form, bitmap.get(), page, 0, 0, width, height, 0, flags);
         }
-        cs.unlock();
 
         int stride = FPDFBitmap_GetStride(bitmap.get());
         void* buffer = FPDFBitmap_GetBuffer(bitmap.get());
