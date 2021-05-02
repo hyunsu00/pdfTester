@@ -15,6 +15,9 @@ mkdir pdfTester && cd pdfTester
 cp /share_docker/pdfTester-1.0.0-Linux.tar.gz .
 tar -xzvf pdfTester-1.0.0-Linux.tar.gz
 cd pdfTester-1.0.0-Linux
+# 변환 결과 폴더 생성(굳이 필요 없음)
+mkdir pdfboxTester/result
+mkdir pdfiumTester/result
 ```
 
 ## pdfiumTester 종속 패키지 설치
