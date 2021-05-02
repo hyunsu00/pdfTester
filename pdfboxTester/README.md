@@ -1,6 +1,7 @@
-﻿# pdfboxTester 
+﻿# pdfboxTester
 
-## CentOS 7 개발 도구 설치
+## CentOS 7 개발 환경
+
 ```bash
 # centos7 개발툴 설치
 # GCC 및 개발 도구 설치
@@ -21,6 +22,8 @@ echo $JAVA_HOME
 3. yum install cmake -y
 ```
 
-## Ubuntu 18.04 개발 도구 설치
+## Ubuntu 18.04 개발 환경
+
 ```bash
+
 ```
