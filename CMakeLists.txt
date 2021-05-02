@@ -15,3 +15,6 @@ endif()
 if(BUILD_PDFIUM_TESTER)
     add_subdirectory(pdfiumTester)
 endif()
+
+set(CPACK_RESOURCE_FILE_README "${CMAKE_CURRENT_SOURCE_DIR}/README.md")
+install(FILES ${CPACK_RESOURCE_FILE_README} DESTINATION .)

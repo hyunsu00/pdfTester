@@ -1,6 +1,10 @@
 # CMakeList.txt
 cmake_minimum_required (VERSION 2.8)
 
+message(STATUS "========================")
+message(STATUS "========================")
+message(STATUS "========================")
+
 #
 # 프로젝트 이름 지정
 project ("pdfiumTester")
@@ -8,6 +12,14 @@ message(STATUS "\${PROJECT_NAME} = ${PROJECT_NAME}")
 
 # 빌드 상세 과정을 모두 출력하는 Makefile을 생성
 set (CMAKE_VERBOSE_MAKEFILE true)
+
+###
+# RPATH 확인
+set(CMAKE_INSTALL_RPATH "./")
+set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
+message(STATUS "\${CMAKE_INSTALL_PREFIX} = ${CMAKE_INSTALL_PREFIX}")
+message(STATUS "\${CMAKE_INSTALL_RPATH} = ${CMAKE_INSTALL_RPATH}")
+message(STATUS "\${CMAKE_INSTALL_RPATH_USE_LINK_PATH} = ${CMAKE_INSTALL_RPATH_USE_LINK_PATH}")
 
 ###
 # pfdium 설치위치 설정
@@ -117,6 +129,11 @@ else()
 	target_link_libraries(${PROJECT_NAME} "Shlwapi.lib")
 endif()
 
+# 실행파일에 so RPATH 지정 - !!!!! 확인 요망
+if (${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
+	# set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,-rpath -Wl,./")
+endif()
+
 # LINUX C++ 11 사용위해 - GCC 버전 체크후 설정해주어야 한다.
 message(STATUS "\${CMAKE_SYSTEM_NAME} = ${CMAKE_SYSTEM_NAME}")
 if (${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
@@ -153,10 +170,13 @@ if (${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
 endif()
 message(STATUS "\${CMAKE_CURRENT_BINARY_DIR} = ${CMAKE_CURRENT_BINARY_DIR}")
 
+
 ###
 # 인스톨
 install(TARGETS ${PROJECT_NAME} DESTINATION ${PROJECT_NAME})
-install(FILES ${PDFium_LIBRARY} DESTINATION ${PROJECT_NAME})
+get_filename_component(PDFium_NAME ${PDFium_LIBRARY} NAME)
+message(STATUS "\${PDFium_NAME} = ${PDFium_NAME}")
+install(FILES "${PDFium_LIBRARY}" DESTINATION ${PROJECT_NAME})
 install(DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/samples" DESTINATION ${PROJECT_NAME})
 install(DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/result" DESTINATION ${PROJECT_NAME})
 

@@ -1,6 +1,10 @@
 # CMakeList.txt
 cmake_minimum_required (VERSION 2.8)
 
+message(STATUS "========================")
+message(STATUS "========================")
+message(STATUS "========================")
+
 #
 # 프로젝트 이름 지정
 project ("pdfboxTester")
