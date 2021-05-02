@@ -9,6 +9,8 @@
 2. yum install libpng-devel -y
 # intel tbb 설치
 3. yum install tbb-devel -y
+# cmake 설치
+4. yum install cmake -y
 ```
 
 ## Ubuntu 18.04 개발 도구 설치
