@@ -7,6 +7,12 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "pdfiumTester", "pdfiumTeste
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "pdfboxTester", "pdfboxTester\pdfboxTester.vcxproj", "{B4E74817-0617-4AE7-9AD3-5E58F4CC4DEE}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "common", "common", "{57F3A75E-9E24-4620-B25B-49C151C4D5A5}"
+	ProjectSection(SolutionItems) = preProject
+		common\pdf_assert.h = common\pdf_assert.h
+		common\pdf_utils.h = common\pdf_utils.h
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
